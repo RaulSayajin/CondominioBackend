@@ -1,0 +1,19 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger apenas em tags que seguem o padrão SemVer (ex: v1.0.0)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Render
+        run: |
+          curl -fX POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        # Nota: Você deve configurar o Deploy Hook no Dashboard do Render 
+        # e adicionar o segredo RENDER_DEPLOY_HOOK_URL nas configurações do GitHub.
