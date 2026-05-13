@@ -1,5 +1,5 @@
 const prisma = require('../../prisma/prisma-client');
-const FinanceiroService = require('../services/FinanceiroService');
+const FinanceiroService = require('../services/financeiroService');
 
 class CondominioController {
   // Lista todos os condomínios da carteira da sua cliente

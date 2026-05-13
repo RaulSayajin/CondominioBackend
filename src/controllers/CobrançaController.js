@@ -1,5 +1,5 @@
 const prisma = require('../../prisma/prisma-client');
-const CobrancaService = require('../services/CobrancaService');
+const CobrancaService = require('../services/cobrancaService');
 
 class CobrancaController {
   // Lista as cobranças de um mês para conferência (R$ 324,81 por unidade)

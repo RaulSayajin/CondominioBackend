@@ -1,5 +1,5 @@
 const prisma = require('../../prisma/prisma-client');
-const BalanceteService = require('../services/BalanceteService');
+const BalanceteService = require('../services/balanceteService');
 
 class FinanceiroController {
   // Gera o balancete mensal para prestação de contas
