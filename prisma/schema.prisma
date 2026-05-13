@@ -87,6 +87,7 @@ enum Status {
   PAGO
   ATRASADO
   ACORDO
+  VENCIDO
 }
 
 // 💸 Modelo: Despesa (Saída - DRE Saída)
@@ -135,9 +136,16 @@ model CobrancaRecorrente {
   createdAt    DateTime   @default(now())
 }
 
-enum Status {
-  PENDENTE
-  PAGO
-  ATRASADO
-  VENCIDO
+// 🛠️ Modelo: Taxa Extra (Controle de Parcelas)
+model TaxaExtra {
+  id              Int        @id @default(autoincrement())
+  nomeProjeto     String     // Ex: "Pintura"
+  parcelaAtual    Int        // Ex: 25
+  totalParcelas   Int        // Ex: 62
+  valorParcela    Decimal    @db.Decimal(10, 2)
+  ativo           Boolean    @default(true)
+  
+  condominioId    Int
+  condominio      Condominio @relation(fields: [condominioId], references: [id])
+  createdAt       DateTime   @default(now())
 }
