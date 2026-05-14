@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,144 +7,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 🏢 Modelo: Condomínio (Cliente da sua cliente)
 model Condominio {
-  id                     Int                @id @default(autoincrement())
-  nome                   String             // Ex: Residencial Dom Bosco
-  cnpj                   String             @unique // Ex: 10.789.211/0001-09
-  endereco               String?            // Av. Mário de Andrade, 979
-  percentualGarantidora  Decimal            @default(4.00) @db.Decimal(5, 2)
-  bancoInfo              Json?              // Ag: 4277, CC: 18.579-5
-  honorarioMensal        Decimal            @db.Decimal(10, 2)
-  
-  // Relações
-  unidades               Unidade[]
-  despesas               Despesa[]
-  taxasExtras            TaxaExtra[]
-  cobrancasRecorrentes   CobrancaRecorrente[]
-  fechamentos            FechamentoMensal[]
-  usuarios               Usuario[]          // Usuários vinculados ao condomínio
-  createdAt              DateTime           @default(now())
+  id                    Int                  @id @default(autoincrement())
+  nome                  String
+  cnpj                  String               @unique
+  endereco              String?
+  percentualGarantidora Decimal              @default(4.00) @db.Decimal(5, 2)
+  bancoInfo             Json?
+  honorarioMensal       Decimal              @db.Decimal(10, 2)
+  createdAt             DateTime             @default(now())
+  cobrancasRecorrentes  CobrancaRecorrente[]
+  despesas              Despesa[]
+  fechamentos           FechamentoMensal[]
+  taxasExtras           TaxaExtra[]
+  unidades              Unidade[]
 }
 
-// 🔐 Modelo: Usuário e Controle de Acesso
-model Usuario {
-  id            Int         @id @default(autoincrement())
-  nome          String
-  email         String      @unique
-  senha         String
-  role          Role        @default(AUXILIAR)
-  status        Boolean     @default(true)
-  
-  condominioId  Int?        // Null se for ADMIN_MASTER
-  condominio    Condominio? @relation(fields: [condominioId], references: [id])
-  
-  createdAt     DateTime    @default(now())
-}
-
-enum Role {
-  ADMIN_MASTER
-  SINDICO
-  AUXILIAR
-}
-
-// 👥 Modelo: Unidade (Apartamentos)
 model Unidade {
-  id               Int        @id @default(autoincrement())
-  numeroUnidade    String     // Ex: 0101
-  nomeSacado       String     // Ex: Ingrid Pavani Ribeiro
-  email            String?    // Para envio automático
-  telefone         String?    
-  
-  condominioId     Int
-  condominio       Condominio @relation(fields: [condominioId], references: [id])
-  
-  cobrancas        Cobranca[]
+  id            Int        @id @default(autoincrement())
+  numeroUnidade String
+  nomeSacado    String
+  condominioId  Int
+  cobrancas     Cobranca[]
+  condominio    Condominio @relation(fields: [condominioId], references: [id])
 }
 
-// 💰 Modelo: Cobrança Mensal (Receita - DRE Entrada)
 model Cobranca {
-  id              Int      @id @default(autoincrement())
-  mesReferencia   String   // Ex: "05/2026"
-  dataVencimento  DateTime
-  valorCondominio Decimal  @db.Decimal(10, 2)
-  valorTaxaExtra  Decimal  @db.Decimal(10, 2)
-  totalBruto      Decimal  @db.Decimal(10, 2)
-  status          Status   @default(PENDENTE)
-  
-  // Informações de Pagamento
-  pixCopiaECola   String?
-  linkPagamento   String?
-  dataPagamento   DateTime?
-
+  id              Int     @id @default(autoincrement())
+  mesReferencia   String
+  valorCondominio Decimal @db.Decimal(10, 2)
+  valorTaxaExtra  Decimal @db.Decimal(10, 2)
+  totalBruto      Decimal @db.Decimal(10, 2)
+  status          Status  @default(PENDENTE)
   unidadeId       Int
-  unidade         Unidade  @relation(fields: [unidadeId], references: [id])
+  unidade         Unidade @relation(fields: [unidadeId], references: [id])
+}
+
+model Despesa {
+  id             Int        @id @default(autoincrement())
+  dataPagamento  DateTime
+  descricao      String
+  valor          Decimal    @db.Decimal(10, 2)
+  comprovanteUrl String?
+  condominioId   Int
+  condominio     Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model FechamentoMensal {
+  id                   Int        @id @default(autoincrement())
+  mesReferencia        String
+  totalArrecadadoBruto Decimal    @db.Decimal(12, 2)
+  custoGarantidora     Decimal    @db.Decimal(10, 2)
+  totalDespesas        Decimal    @db.Decimal(12, 2)
+  saldoFinalCaixa      Decimal    @db.Decimal(12, 2)
+  condominioId         Int
+  condominio           Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model CobrancaRecorrente {
+  id           Int        @id @default(autoincrement())
+  descricao    String
+  valor        Decimal    @db.Decimal(10, 2)
+  ativo        Boolean    @default(true)
+  condominioId Int
+  createdAt    DateTime   @default(now())
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model TaxaExtra {
+  id               Int        @id @default(autoincrement())
+  nomeProjeto      String
+  parcelaAtual     Int
+  totalParcelas    Int
+  condominioId     Int
+  valorMensalTotal Decimal    @default(0) @db.Decimal(10, 2)
+  condominio       Condominio @relation(fields: [condominioId], references: [id])
 }
 
 enum Status {
   PENDENTE
   PAGO
   ATRASADO
-  ACORDO
   VENCIDO
-}
-
-// 💸 Modelo: Despesa (Saída - DRE Saída)
-model Despesa {
-  id             Int               @id @default(autoincrement())
-  dataPagamento  DateTime   
-  descricao      String     
-  valor          Decimal           @db.Decimal(10, 2)
-  categoria      CategoriaDespesa  @default(OUTROS)
-  comprovanteUrl String?
-  
-  condominioId   Int
-  condominio     Condominio        @relation(fields: [condominioId], references: [id])
-}
-
-enum CategoriaDespesa {
-  MANUTENCAO
-  PESSOAL
-  UTILIDADES
-  ADMINISTRATIVO
-  EXTRAORDINARIA
-  OUTROS
-}
-
-// 📋 Modelo: Fechamento Mensal (Histórico do Balancete)
-model FechamentoMensal {
-  id                    Int        @id @default(autoincrement())
-  mesReferencia         String     // Ex: "04/2026"[cite: 3]
-  totalArrecadadoBruto  Decimal    @db.Decimal(12, 2) // R$ 62.363,52[cite: 1]
-  custoGarantidora      Decimal    @db.Decimal(10, 2) // R$ 2.494,54[cite: 1]
-  totalDespesas         Decimal    @db.Decimal(12, 2) // R$ 42.015,52[cite: 3]
-  saldoFinalCaixa       Decimal    @db.Decimal(12, 2) // R$ 90.655,29[cite: 3]
-  
-  condominioId          Int
-  condominio            Condominio @relation(fields: [condominioId], references: [id])
-}
-
-// 📋 Cobrança Recorrente (valores fixos mensais configurados por condomínio)
-model CobrancaRecorrente {
-  id           Int        @id @default(autoincrement())
-  descricao    String     // Ex: "Portaria e Segurança", "CPFL - Energia"
-  valor        Decimal    @db.Decimal(10, 2) // Valor mensal esperado
-  ativo        Boolean    @default(true)
-  condominioId Int
-  condominio   Condominio @relation(fields: [condominioId], references: [id])
-  createdAt    DateTime   @default(now())
-}
-
-// 🛠️ Modelo: Taxa Extra (Controle de Parcelas)
-model TaxaExtra {
-  id              Int        @id @default(autoincrement())
-  nomeProjeto     String     // Ex: "Pintura"
-  parcelaAtual    Int        // Ex: 25
-  totalParcelas   Int        // Ex: 62
-  valorParcela    Decimal    @db.Decimal(10, 2)
-  ativo           Boolean    @default(true)
-  
-  condominioId    Int
-  condominio      Condominio @relation(fields: [condominioId], references: [id])
-  createdAt       DateTime   @default(now())
 }
