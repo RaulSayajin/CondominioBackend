@@ -8,4 +8,13 @@ const prisma = new PrismaClient({
   }
 });
 
+// Log para verificar a conexão com o banco de dados
+prisma.$connect()
+  .then(() => {
+    console.log('✅ Conectado ao banco de dados com sucesso!');
+  })
+  .catch((err) => {
+    console.error('❌ Erro ao conectar ao banco de dados:', err.message);
+  });
+
 module.exports = prisma;
