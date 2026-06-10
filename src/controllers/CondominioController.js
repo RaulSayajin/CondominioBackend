@@ -10,7 +10,8 @@ class CondominioController {
       });
       return res.json(condominios);
     } catch (error) {
-      return res.status(500).json({ error: 'Erro ao listar condomínios' });
+      console.error('❌ Erro ao listar condomínios:', error);
+      return res.status(500).json({ error: 'Erro ao listar condomínios', details: error.message });
     }
   }
 
@@ -55,7 +56,8 @@ class CondominioController {
       });
       return res.json(unidades);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao listar unidades' });
+      console.error(`❌ Erro ao listar unidades do condomínio ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao listar unidades', details: error.message });
     }
   }
 
@@ -73,7 +75,8 @@ class CondominioController {
       });
       return res.status(201).json(unidade);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao criar unidade' });
+      console.error(`❌ Erro ao criar unidade para condomínio ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao criar unidade', details: error.message });
     }
   }
 
@@ -88,7 +91,8 @@ class CondominioController {
       });
       return res.json(unidade);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao atualizar unidade' });
+      console.error(`❌ Erro ao atualizar unidade ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao atualizar unidade', details: error.message });
     }
   }
 
@@ -101,7 +105,98 @@ class CondominioController {
       });
       return res.status(204).send();
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao deletar unidade' });
+      console.error(`❌ Erro ao deletar unidade ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao deletar unidade', details: error.message });
+    }
+  }
+
+    // Buscar condomínio por ID
+  async show(req, res) {
+    const { id } = req.params;
+
+    try {
+      const condominio = await prisma.condominio.findUnique({
+        where: {
+          id: Number(id)
+        },
+        include: {
+          _count: {
+            select: {
+              unidades: true
+            }
+          }
+        }
+      });
+
+      if (!condominio) {
+        return res.status(404).json({
+          error: 'Condomínio não encontrado'
+        });
+      }
+
+      return res.json(condominio);
+    } catch (error) {
+      console.error(`❌ Erro ao buscar condomínio ${id}:`, error);
+      return res.status(500).json({
+        error: 'Erro ao buscar condomínio',
+        details: error.message
+      });
+    }
+  }
+
+  // Atualizar condomínio
+  async update(req, res) {
+    const { id } = req.params;
+    const {
+      nome,
+      cnpj,
+      endereco,
+      percentualGarantidora,
+      honorarioMensal
+    } = req.body;
+
+    try {
+      const condominio = await prisma.condominio.update({
+        where: {
+          id: Number(id)
+        },
+        data: {
+          nome,
+          cnpj,
+          endereco,
+          percentualGarantidora,
+          honorarioMensal
+        }
+      });
+
+      return res.json(condominio);
+    } catch (error) {
+      console.error(`❌ Erro ao atualizar condomínio ${id}:`, error);
+      return res.status(400).json({
+        error: 'Erro ao atualizar condomínio',
+        details: error.message
+      });
+    }
+  }
+
+  // Excluir condomínio
+  async delete(req, res) {
+    const { id } = req.params;
+
+    try {
+      await prisma.condominio.delete({
+        where: {
+          id: Number(id)
+        }
+      });
+
+      return res.status(204).send();
+    } catch (error) {
+      console.error(`❌ Erro ao excluir condomínio ${id}:`, error);
+      return res.status(400).json({
+        error: 'Erro ao excluir condomínio',
+        details: error.message
+      });
     }
   }
 }

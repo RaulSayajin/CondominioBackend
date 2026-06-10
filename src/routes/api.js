@@ -8,13 +8,13 @@ const CobrancaController = require('../controllers/CobrançaController');
 const RateioController = require('../controllers/RateioController');
 const CobrancaRecorrenteController = require('../controllers/CobrancaRecorrenteController');
 const UsuarioController = require('../controllers/UsuarioController');
+const AuthController = require('../controllers/AuthController'); // Novo Controller
 
 /**
- * 👤 ROTAS DE USUÁRIOS & RBAC
+ *  AUTENTICAÇÃO (Acesso Administrativo)
  */
-router.get('/usuarios', UsuarioController.listar);
-router.post('/usuarios', UsuarioController.criar);
-router.patch('/usuarios/:id/status', UsuarioController.atualizarStatus);
+router.post('/auth/login', AuthController.login);
+router.get('/auth/me', AuthController.me);
 
 /**
  * 🏢 ROTAS DE CONDOMÍNIOS (CLIENTES)
@@ -22,6 +22,9 @@ router.patch('/usuarios/:id/status', UsuarioController.atualizarStatus);
 // Lista todos os condomínios na carteira da administradora
 router.get('/condominios', CondominioController.index);
 router.post('/condominios', CondominioController.store);
+router.get('/condominios/:id', CondominioController.show);
+router.put('/condominios/:id', CondominioController.update);
+router.delete('/condominios/:id', CondominioController.delete);
 
 // Gerenciamento de Unidades por Condomínio
 router.get('/condominios/:id/unidades', CondominioController.getUnidades);
@@ -55,8 +58,8 @@ router.post('/financeiro/despesas', FinanceiroController.storeDespesa);
 // Lista a composição das cobranças das unidades (R$ 324,81)
 router.get('/cobrancas/:condominioId', CobrancaController.listarCobrancas);
 
-// Atualiza o status de pagamento (PAGO/PENDENTE) para controle interno
-router.patch('/cobrancas/:id/status', CobrancaController.updateStatus);
+// Registro detalhado de recebimento
+router.patch('/cobrancas/:id/pagamento', CobrancaController.registrarPagamento);
 
 
 /**

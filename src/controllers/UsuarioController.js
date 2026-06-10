@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../../prisma/prisma-client');
+const bcrypt = require('bcrypt');
 
 class UsuarioController {
     async listar(req, res) {
@@ -20,6 +20,7 @@ class UsuarioController {
             });
             res.json(usuarios);
         } catch (error) {
+            console.error('❌ Erro ao listar usuários:', error);
             res.status(500).json({ error: error.message });
         }
     }
@@ -27,17 +28,23 @@ class UsuarioController {
     async criar(req, res) {
         try {
             const { nome, email, senha, role, condominioId } = req.body;
+            
+            // Criptografando a senha antes de salvar no banco
+            const saltRounds = 10;
+            const senhaHash = await bcrypt.hash(senha, saltRounds);
+
             const usuario = await prisma.usuario.create({
                 data: {
                     nome,
                     email,
-                    senha, // Em produção, usar bcrypt
+                    senha: senhaHash,
                     role,
                     condominioId: condominioId ? Number(condominioId) : null
                 }
             });
             res.status(201).json(usuario);
         } catch (error) {
+            console.error('❌ Erro ao criar usuário:', error);
             res.status(400).json({ error: error.message });
         }
     }
@@ -52,6 +59,7 @@ class UsuarioController {
             });
             res.json(usuario);
         } catch (error) {
+            console.error(`❌ Erro ao atualizar status do usuário ${id}:`, error);
             res.status(400).json({ error: error.message });
         }
     }

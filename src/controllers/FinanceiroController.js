@@ -11,7 +11,8 @@ class FinanceiroController {
       const resumo = await BalanceteService.gerarResumoMensal(Number(condominioId), mes);
       return res.json(resumo);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao gerar balancete' });
+      console.error(`❌ Erro ao gerar balancete do condomínio ${condominioId}:`, error);
+      return res.status(400).json({ error: 'Erro ao gerar balancete', details: error.message });
     }
   }
 
@@ -31,7 +32,8 @@ class FinanceiroController {
       });
       return res.status(201).json(despesa);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao lançar despesa' });
+      console.error(`❌ Erro ao lançar despesa no condomínio ${condominioId}:`, error);
+      return res.status(400).json({ error: 'Erro ao lançar despesa', details: error.message });
     }
   }
 }

@@ -15,6 +15,7 @@ class RateioController {
       const resultado = await RateioService.gerarCobrancasMensais(Number(condominioId), mes);
       return res.status(201).json(resultado);
     } catch (error) {
+      console.error(`❌ Erro ao gerar rateio do condomínio ${condominioId} para ${mes}:`, error);
       return res.status(400).json({ error: error.message });
     }
   }
@@ -33,7 +34,8 @@ class RateioController {
       const dados = await RateioService.listarRateioMensal(Number(condominioId), mes);
       return res.json(dados);
     } catch (error) {
-      return res.status(500).json({ error: 'Erro ao listar rateio' });
+      console.error(`❌ Erro ao listar rateio do condomínio ${condominioId} para ${mes}:`, error);
+      return res.status(500).json({ error: 'Erro ao listar rateio', details: error.message });
     }
   }
 }

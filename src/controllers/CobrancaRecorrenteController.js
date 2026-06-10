@@ -10,8 +10,9 @@ class CobrancaRecorrenteController {
         orderBy: { descricao: 'asc' }
       });
       return res.json(cobrancas);
-    } catch {
-      return res.status(500).json({ error: 'Erro ao listar cobranças recorrentes' });
+    } catch (error) {
+      console.error(`❌ Erro ao listar cobranças recorrentes do condomínio ${id}:`, error);
+      return res.status(500).json({ error: 'Erro ao listar cobranças recorrentes', details: error.message });
     }
   }
 
@@ -29,8 +30,9 @@ class CobrancaRecorrenteController {
         data: { condominioId: Number(id), descricao, valor: Number(valor), ativo: true }
       });
       return res.status(201).json(cobranca);
-    } catch {
-      return res.status(400).json({ error: 'Erro ao criar cobrança recorrente' });
+    } catch (error) {
+      console.error(`❌ Erro ao criar cobrança recorrente para condomínio ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao criar cobrança recorrente', details: error.message });
     }
   }
 
@@ -44,8 +46,9 @@ class CobrancaRecorrenteController {
         data: { descricao, valor: valor != null ? Number(valor) : undefined, ativo }
       });
       return res.json(cobranca);
-    } catch {
-      return res.status(400).json({ error: 'Erro ao atualizar cobrança recorrente' });
+    } catch (error) {
+      console.error(`❌ Erro ao atualizar cobrança recorrente ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao atualizar cobrança recorrente', details: error.message });
     }
   }
 
@@ -55,8 +58,9 @@ class CobrancaRecorrenteController {
     try {
       await prisma.cobrancaRecorrente.delete({ where: { id: Number(id) } });
       return res.status(204).send();
-    } catch {
-      return res.status(400).json({ error: 'Erro ao excluir cobrança recorrente' });
+    } catch (error) {
+      console.error(`❌ Erro ao excluir cobrança recorrente ${id}:`, error);
+      return res.status(400).json({ error: 'Erro ao excluir cobrança recorrente', details: error.message });
     }
   }
 }

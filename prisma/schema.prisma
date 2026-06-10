@@ -5,8 +5,11 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
+
+
+
 
 model Condominio {
   id                    Int                  @id @default(autoincrement())
@@ -22,6 +25,19 @@ model Condominio {
   fechamentos           FechamentoMensal[]
   taxasExtras           TaxaExtra[]
   unidades              Unidade[]
+  usuarios              Usuario[]
+}
+
+model Usuario {
+  id           Int         @id @default(autoincrement())
+  nome         String
+  email        String      @unique
+  senha        String
+  role         String      @default("MORADOR")
+  status       Boolean     @default(true)
+  condominioId Int?
+  condominio   Condominio? @relation(fields: [condominioId], references: [id])
+  createdAt    DateTime    @default(now())
 }
 
 model Unidade {

@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    container_name: condominios-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=development
+      # Substitua pelos dados reais do seu banco
+      - DATABASE_URL=postgresql://postgres.nqvlswgztrmbltjnopbr:Jl2aZWYGJADqPjXE@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+      - DIRECT_URL=postgresql://postgres.nqvlswgztrmbltjnopbr:Jl2aZWYGJADqPjXE@aws-1-us-east-1.pooler.supabase.com:5432/postgres
