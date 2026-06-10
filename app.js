@@ -16,6 +16,7 @@ class App {
     const corsOptions = {
       origin: [
         "https://condominio-frontend-rho.vercel.app",
+        'https://reimagined-dollop-7vvwww6vqg562x4vj.github.dev',
         "http://localhost:3000",
         "http://localhost:8080",
         "http://localhost:5173",
